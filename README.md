@@ -1,4 +1,4 @@
 Birthdpy
 ========
 
-This script thanks all who have wished you on your birthday on your facebook timeline
+This script thanks everyone who have wished you on your birthday on your facebook timeline
