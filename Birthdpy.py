@@ -8,25 +8,22 @@ Token = raw_input("\nGo to https://developers.facebook.com/tools/explorer ,\ncli
 LIMIT = raw_input("\nHow many max posts are supposed to be liked and commented on?\n")
 comment = raw_input("\nYour comment here!\n")
 
-def thank():
-    query = ("SELECT post_id, actor_id, message FROM stream WHERE "
-            "filter_key = 'others' AND source_id = me() AND "
-            "created_time > "+str(start_time)+" LIMIT " + str(LIMIT))
+wishes = ["birthday", "bday", "b'day", "bdy", "returns"]
+self_id = json.loads(requests.get("https://graph.facebook.com/me?access_token=" + Token).text)['id']
 
-    payload = {'q': query, 'access_token': Token}
-    r = requests.get('https://graph.facebook.com/fql', params=payload)
+def thank():
+    r = requests.get("https://graph.facebook.com/me/feed?since=" + str(start_time) + "&limit=" + str(LIMIT) + "&access_token=" + str(Token))
     result = json.loads(r.text)
-    
     for wallpost in result['data']:
-        requests.post("https://graph.facebook.com/" + str(wallpost['post_id'])
-                      + "/likes/?access_token=" + Token
-                      + "&method=POST")
-        requests.post("https://graph.facebook.com/" + str(wallpost['post_id'])
-                      + "/comments/?access_token=" + Token
-                      + "&message=%s" % comment)
-        r = requests.get("https://graph.facebook.com/"+str(wallpost['actor_id']))
-        user = json.loads(r.text)
-        print user['first_name']+"'s post liked and commented"
+        if str(wallpost['from']['id']) == self_id:
+            continue
+        for wish in wishes:
+            if wish in str(wallpost['message']).lower():
+                requests.post("https://graph.facebook.com/" + str(wallpost['id']) + "/likes/?access_token=" + str(Token) + "&method=POST")
+                requests.post("https://graph.facebook.com/" + str(wallpost['id']) + "/comments/?access_token=" + str(Token) + "&message=" + str(comment))
+                user = wallpost['from']['name']
+                print user+"'s post liked and commented"
+                break
         
     print "\nThanked All!"
 
